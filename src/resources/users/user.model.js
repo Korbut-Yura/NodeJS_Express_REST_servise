@@ -17,6 +17,15 @@ class User {
     const { id, name, login } = user;
     return { id, name, login };
   }
+
+  static mergeUser(newUser, prevUser) {
+    return {
+      id: prevUser.id,
+      name: newUser.name || prevUser.name,
+      login: newUser.login || prevUser.login,
+      password: newUser.password || prevUser.password
+    };
+  }
 }
 
 module.exports = User;
