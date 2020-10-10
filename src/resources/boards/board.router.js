@@ -6,12 +6,12 @@ const { boardSchema } = require('./board.schema');
 
 router.route('/').get(async (req, res) => {
   const boards = await boardsService.getAll();
-  res.json(boards);
+  res.json(boards.map(Board.toResponse));
 });
 
-router.route('/:id').get(async (req, res) => {
+router.route('/:boardId').get(async (req, res) => {
   try {
-    const user = await boardsService.get(req.params.id);
+    const user = await boardsService.get(req.params.boardId);
     res.json(Board.toResponse(user));
   } catch (e) {
     res.status(404).send('Board not found');
@@ -23,21 +23,21 @@ router.route('/').post(validateSchema(boardSchema), async (req, res) => {
   res.json(Board.toResponse(board));
 });
 
-router.route('/:id').put(validateSchema(boardSchema), async (req, res) => {
+router.route('/:boardId').put(validateSchema(boardSchema), async (req, res) => {
   try {
-    const board = await boardsService.update(req.params.id, req.body);
+    const board = await boardsService.update(req.params.boardId, req.body);
     res.json(Board.toResponse(board));
   } catch (e) {
     res.status(404).send('Board not found');
   }
 });
 
-router.route('/:id').delete(async (req, res) => {
+router.route('/:boardId').delete(async (req, res) => {
   try {
-    await boardsService.remove(req.params.id);
+    await boardsService.remove(req.params.boardId);
     res.status(204).send('The board has been deleted');
   } catch (e) {
-    res.status(404).send('board not found');
+    res.status(404).send('Board not found');
   }
 });
 
