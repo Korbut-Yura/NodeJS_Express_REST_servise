@@ -13,18 +13,15 @@ class User {
     this.password = password;
   }
 
+  update(newProps) {
+    const { id, name, login } = newProps;
+    Object.assign(this, { id, name, login });
+    return this;
+  }
+
   static toResponse(user) {
     const { id, name, login } = user;
     return { id, name, login };
-  }
-
-  static mergeUser(newUser, prevUser) {
-    return {
-      id: prevUser.id,
-      name: newUser.name || prevUser.name,
-      login: newUser.login || prevUser.login,
-      password: newUser.password || prevUser.password
-    };
   }
 }
 

@@ -15,8 +15,12 @@ const get = async id => {
 
 const add = async user => {
   db.set(user.id, user);
-
   return user;
+};
+
+const update = async (id, data) => {
+  const user = await get(id);
+  return user.update(data);
 };
 
 const remove = async id => {
@@ -26,4 +30,4 @@ const remove = async id => {
   }
 };
 
-module.exports = { getAll, get, add, remove };
+module.exports = { getAll, get, add, update, remove };
