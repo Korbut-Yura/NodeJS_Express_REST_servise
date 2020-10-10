@@ -2,7 +2,7 @@ const router = require('express').Router();
 const User = require('./user.model');
 const usersService = require('./user.service');
 const { validateSchema } = require('../../common/moddlewares');
-const { userShema } = require('./user.shema');
+const { userSchema } = require('./user.schema');
 
 router.route('/').get(async (req, res) => {
   const users = await usersService.getAll();
@@ -18,12 +18,12 @@ router.route('/:id').get(async (req, res) => {
   }
 });
 
-router.route('/').post(validateSchema(userShema), async (req, res) => {
+router.route('/').post(validateSchema(userSchema), async (req, res) => {
   const user = await usersService.add(new User(req.body));
   res.json(User.toResponse(user));
 });
 
-router.route('/:id').put(validateSchema(userShema), async (req, res) => {
+router.route('/:id').put(validateSchema(userSchema), async (req, res) => {
   try {
     const user = await usersService.update(req.params.id, req.body);
     res.json(User.toResponse(user));

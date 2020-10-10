@@ -14,8 +14,8 @@ class User {
   }
 
   update(newProps) {
-    const { id, name, login } = newProps;
-    Object.assign(this, { id, name, login });
+    const { name, login, password } = newProps;
+    Object.assign(this, { name, login, password });
     return this;
   }
 

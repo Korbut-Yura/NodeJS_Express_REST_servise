@@ -1,6 +1,6 @@
-function validateSchema(shema) {
+function validateSchema(schema) {
   return (req, res, next) => {
-    const { error } = shema.validate(req.body, {
+    const { error } = schema.validate(req.body, {
       abortEarly: false,
       allowUnknown: false
     });

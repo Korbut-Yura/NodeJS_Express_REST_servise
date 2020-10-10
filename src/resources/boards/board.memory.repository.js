@@ -5,16 +5,16 @@ const getAll = async () => {
 };
 
 const get = async id => {
-  const user = db.get(id);
-  if (!user) {
-    throw new Error(`Error: user with id ${id} not found`);
+  const board = db.get(id);
+  if (!board) {
+    throw new Error(`Error: board with id ${id} not found`);
   }
-  return user;
+  return board;
 };
 
-const add = async user => {
-  db.set(user.id, user);
-  return user;
+const add = async board => {
+  db.set(board.id, board);
+  return board;
 };
 
 const update = async (id, data) => {
@@ -25,7 +25,7 @@ const update = async (id, data) => {
 const remove = async id => {
   const success = db.delete(id);
   if (!success) {
-    throw new Error(`Error: user with id ${id} not found`);
+    throw new Error(`Error: board with id ${id} not found`);
   }
 };
 
