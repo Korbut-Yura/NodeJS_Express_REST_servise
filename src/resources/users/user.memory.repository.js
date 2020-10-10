@@ -7,7 +7,7 @@ const getAll = async () => {
 const get = async id => {
   const user = db.get(id);
   if (!user) {
-    throw new Error(`Error: user with id ${id} not found`);
+    throw new Error('User not found');
   }
   return user;
 };

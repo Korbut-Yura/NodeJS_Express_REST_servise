@@ -7,7 +7,7 @@ const getAll = async () => {
 const get = async id => {
   const board = db.get(id);
   if (!board) {
-    throw new Error(`Error: board with id ${id} not found`);
+    throw new Error('Board not found');
   }
   return board;
 };
@@ -25,7 +25,7 @@ const update = async (id, data) => {
 const remove = async id => {
   const success = db.delete(id);
   if (!success) {
-    throw new Error(`Error: board with id ${id} not found`);
+    throw new Error('Board not found');
   }
 };
 
