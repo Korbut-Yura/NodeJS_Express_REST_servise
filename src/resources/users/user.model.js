@@ -13,6 +13,12 @@ class User {
     this.password = password;
   }
 
+  update(newProps) {
+    const { name, login, password } = newProps;
+    Object.assign(this, { name, login, password });
+    return this;
+  }
+
   static toResponse(user) {
     const { id, name, login } = user;
     return { id, name, login };
