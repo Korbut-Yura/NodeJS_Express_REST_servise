@@ -1,32 +1,23 @@
-const db = new Map();
+const User = require('./user.model');
 
 const getAll = async () => {
-  return Array.from(db.values());
+  return User.find({});
 };
 
 const get = async id => {
-  const user = db.get(id);
-  if (!user) {
-    throw new Error('User not found');
-  }
-  return user;
+  return User.findOne({ _id: id });
 };
 
-const add = async user => {
-  db.set(user.id, user);
-  return user;
+const add = async body => {
+  return User.create(body);
 };
 
 const update = async (id, data) => {
-  const user = await get(id);
-  return user.update(data);
+  return User.findOneAndUpdate({ _id: id }, data);
 };
 
 const remove = async id => {
-  const success = db.delete(id);
-  if (!success) {
-    throw new Error(`Error: user with id ${id} not found`);
-  }
+  return User.findOneAndRemove({ _id: id });
 };
 
 module.exports = { getAll, get, add, update, remove };

@@ -1,49 +1,60 @@
 const router = require('express').Router({ mergeParams: true });
 const Task = require('./task.model');
 const tasksService = require('./task.service');
-const { validateSchema, processNotFound } = require('../../common/validators');
+const { validateSchema } = require('../../common/validators');
+const { NotFoundError } = require('../../common/errors');
 const { taskSchema } = require('./task.schema');
+const asyncHandler = require('../../common/asyncHandler');
 
-router.route('/').get(async (req, res, next) => {
-  const tasks = await tasksService.getAll(req.params.boardId);
-  res.json(tasks.map(Task.toResponse));
-  next();
-});
-
-router.route('/:taskId').get(
-  processNotFound(async (req, res, next) => {
-    const task = await tasksService.get(req.params.boardId, req.params.taskId);
-    res.json(task);
-    next();
+router.route('/').get(
+  asyncHandler(async (req, res) => {
+    const tasks = await tasksService.getAll({ boardId: req.params.boardId });
+    res.json(tasks.map(Task.toResponse));
   })
 );
 
-router.route('/').post(validateSchema(taskSchema), async (req, res, next) => {
-  const task = await tasksService.add(
-    new Task({ ...req.body, boardId: req.params.boardId })
-  );
+router.route('/:taskId').get(
+  asyncHandler(async (req, res) => {
+    const task = await tasksService.get(req.params.boardId, req.params.taskId);
+    if (!task) {
+      throw new NotFoundError(`Task ${req.params.taskId} not found`);
+    }
+    res.json(Task.toResponse(task));
+  })
+);
 
-  res.json(Task.toResponse(task));
-  next();
-});
+router.route('/').post(
+  validateSchema(taskSchema),
+  asyncHandler(async (req, res) => {
+    const task = await tasksService.add({
+      ...req.body,
+      boardId: req.params.boardId
+    });
+    res.json(Task.toResponse(task));
+  })
+);
 
 router.route('/:taskId').put(
   validateSchema(taskSchema),
-  processNotFound(async (req, res, next) => {
+  asyncHandler(async (req, res) => {
     const task = await tasksService.update(req.params.taskId, {
       ...req.body,
       boardId: req.params.boardId
     });
     res.json(Task.toResponse(task));
-    next();
   })
 );
 
 router.route('/:taskId').delete(
-  processNotFound(async (req, res, next) => {
-    await tasksService.remove(req.params.boardId, req.params.taskId);
+  asyncHandler(async (req, res) => {
+    const deletedTask = await tasksService.remove(
+      req.params.boardId,
+      req.params.taskId
+    );
+    if (!deletedTask) {
+      throw new NotFoundError(`Task ${req.params.taskId} not found`);
+    }
     res.status(204).send('The task has been deleted');
-    next();
   })
 );
 

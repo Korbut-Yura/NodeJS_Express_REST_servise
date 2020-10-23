@@ -1,32 +1,23 @@
-const db = new Map();
+const Board = require('./board.model');
 
 const getAll = async () => {
-  return Array.from(db.values());
+  return Board.find({});
 };
 
 const get = async id => {
-  const board = db.get(id);
-  if (!board) {
-    throw new Error('Board not found');
-  }
-  return board;
+  return Board.findOne({ _id: id });
 };
 
 const add = async board => {
-  db.set(board.id, board);
-  return board;
+  return Board.create(board);
 };
 
 const update = async (id, data) => {
-  const user = await get(id);
-  return user.update(data);
+  return Board.findOneAndUpdate({ _id: id }, data);
 };
 
 const remove = async id => {
-  const success = db.delete(id);
-  if (!success) {
-    throw new Error('Board not found');
-  }
+  return Board.findOneAndRemove({ _id: id });
 };
 
 module.exports = { getAll, get, add, update, remove };
