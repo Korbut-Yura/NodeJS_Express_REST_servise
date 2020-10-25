@@ -1,36 +1,29 @@
-const db = new Map();
+const Task = require('./task.model');
 
-const getAll = async boardId => {
-  return Array.from(db.values()).filter(board => boardId === board.boardId);
-};
-
-const getAllByUserId = async userId => {
-  return Array.from(db.values()).filter(board => userId === board.userId);
+const getAll = async params => {
+  return Task.find(params);
 };
 
 const get = async (boardId, taskId) => {
-  const task = db.get(taskId);
-  if (!task) {
-    throw new Error('Task not found');
-  }
-  return task;
+  return Task.findOne({ boardId, _id: taskId });
 };
 
 const add = async task => {
-  db.set(task.id, task);
-  return task;
+  return Task.create(task);
 };
 
 const update = async (taskId, data) => {
-  const task = await get(data.boardId, taskId);
-  return task.update(data);
+  return Task.findOneAndUpdate({ _id: taskId }, data);
 };
 
 const remove = async (boardId, taskId) => {
-  const success = db.delete(taskId);
-  if (!success) {
-    throw new Error('Task not found');
-  }
+  return Task.findOneAndRemove({ boardId, _id: taskId });
 };
 
-module.exports = { getAll, getAllByUserId, get, add, update, remove };
+module.exports = {
+  getAll,
+  get,
+  add,
+  update,
+  remove
+};

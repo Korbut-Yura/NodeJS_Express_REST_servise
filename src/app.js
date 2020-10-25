@@ -6,6 +6,7 @@ const userRouter = require('./resources/users/user.router');
 const boardRouter = require('./resources/boards/board.router');
 const taskRouter = require('./resources/tasks/task.router');
 const logger = require('./common/logger');
+const { NotFoundError, ValidationError } = require('./common/errors');
 
 const app = express();
 const swaggerDocument = YAML.load(path.join(__dirname, '../doc/api.yaml'));
@@ -38,9 +39,16 @@ boardRouter.use('/:boardId/tasks', taskRouter);
 app.use('/users', userRouter);
 app.use('/boards', boardRouter);
 
-app.use((err, req, res) => {
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
   logger.error(err.stack);
-  res.status(500).send('Internal Server Error');
+  if (err instanceof NotFoundError) {
+    res.status(err.status).send(err.message);
+  } else if (err instanceof ValidationError) {
+    res.status(err.status).send('Bad request');
+  } else {
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 process.on('uncaughtException', err => {

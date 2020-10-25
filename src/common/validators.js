@@ -1,24 +1,18 @@
-const processNotFound = handler => async (req, res, next) => {
-  try {
-    await handler(req, res, next);
-  } catch (e) {
-    res.status(404).send(e.message);
-  }
-};
+const { ValidationError } = require('../common/errors');
+const asyncHandler = require('./asyncHandler');
 
 function validateSchema(schema) {
-  return (req, res, next) => {
+  return asyncHandler(async (req, res, next) => {
     const { error } = schema.validate(req.body, {
       abortEarly: false,
       allowUnknown: false
     });
 
     if (error && error.isJoi) {
-      res.status(400).send('Bad request');
-    } else {
-      return next();
+      throw new ValidationError();
     }
-  };
+    next();
+  });
 }
 
-module.exports = { validateSchema, processNotFound };
+module.exports = { validateSchema };

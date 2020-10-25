@@ -10,9 +10,10 @@ const add = user => usersRepo.add(user);
 const update = (id, data) => usersRepo.update(id, data);
 
 const remove = async id => {
-  const usersTasks = await taskService.getAllByUserId(id);
-  usersTasks.forEach(task => task.update({ userId: null }));
-  usersRepo.remove(id);
+  const usersTasks = await taskService.getAll({ userId: id });
+  usersTasks.forEach(task => taskService.update(task._id, { userId: null }));
+
+  return usersRepo.remove(id);
 };
 
 module.exports = { getAll, get, add, update, remove };

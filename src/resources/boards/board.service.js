@@ -10,9 +10,10 @@ const add = user => boardsRepo.add(user);
 const update = (id, data) => boardsRepo.update(id, data);
 
 const remove = async boardId => {
-  const tasks = await tasksService.getAll(boardId);
-  tasks.forEach(({ id }) => tasksService.remove(boardId, id));
-  boardsRepo.remove(boardId);
+  const tasks = await tasksService.getAll({ boardId });
+  tasks.forEach(({ _id }) => tasksService.remove(boardId, _id));
+
+  return boardsRepo.remove(boardId);
 };
 
 module.exports = {

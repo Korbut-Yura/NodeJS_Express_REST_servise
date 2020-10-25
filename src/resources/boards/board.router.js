@@ -1,43 +1,51 @@
 const router = require('express').Router();
 const Board = require('./board.model');
 const boardsService = require('./board.service');
-const { validateSchema, processNotFound } = require('../../common/validators');
+const { validateSchema } = require('../../common/validators');
 const { boardSchema } = require('./board.schema');
+const { NotFoundError } = require('../../common/errors');
+const asyncHandler = require('../../common/asyncHandler');
 
-router.route('/').get(async (req, res, next) => {
-  const boards = await boardsService.getAll();
-  res.json(boards.map(Board.toResponse));
-  next();
-});
-
-router.route('/:boardId').get(
-  processNotFound(async (req, res, next) => {
-    const user = await boardsService.get(req.params.boardId);
-    res.json(Board.toResponse(user));
-    next();
+router.route('/').get(
+  asyncHandler(async (req, res) => {
+    const boards = await boardsService.getAll();
+    res.json(boards.map(Board.toResponse));
   })
 );
 
-router.route('/').post(validateSchema(boardSchema), async (req, res, next) => {
-  const board = await boardsService.add(new Board(req.body));
-  res.json(Board.toResponse(board));
-  next();
-});
+router.route('/:boardId').get(
+  asyncHandler(async (req, res) => {
+    const board = await boardsService.get(req.params.boardId);
+    if (!board) {
+      throw new NotFoundError(`Board ${req.params.boardId} not found`);
+    }
+    res.json(Board.toResponse(board));
+  })
+);
+
+router.route('/').post(
+  validateSchema(boardSchema),
+  asyncHandler(async (req, res) => {
+    const board = await boardsService.add(req.body);
+    res.json(Board.toResponse(board));
+  })
+);
 
 router.route('/:boardId').put(
   validateSchema(boardSchema),
-  processNotFound(async (req, res, next) => {
+  asyncHandler(async (req, res) => {
     const board = await boardsService.update(req.params.boardId, req.body);
     res.json(Board.toResponse(board));
-    next();
   })
 );
 
 router.route('/:boardId').delete(
-  processNotFound(async (req, res, next) => {
-    await boardsService.remove(req.params.boardId);
+  asyncHandler(async (req, res) => {
+    const deletedBoard = await boardsService.remove(req.params.boardId);
+    if (!deletedBoard) {
+      throw new NotFoundError(`Board ${req.params.boardId} not found`);
+    }
     res.status(204).send('The board has been deleted');
-    next();
   })
 );
 
