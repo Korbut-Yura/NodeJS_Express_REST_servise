@@ -8,6 +8,10 @@ const get = async id => {
   return User.findOne({ _id: id });
 };
 
+const getByParam = async params => {
+  return User.findOne(params);
+};
+
 const add = async body => {
   return User.create(body);
 };
@@ -20,4 +24,4 @@ const remove = async id => {
   return User.findOneAndRemove({ _id: id });
 };
 
-module.exports = { getAll, get, add, update, remove };
+module.exports = { getAll, get, add, update, getByParam, remove };

@@ -5,13 +5,30 @@ const YAML = require('yamljs');
 const userRouter = require('./resources/users/user.router');
 const boardRouter = require('./resources/boards/board.router');
 const taskRouter = require('./resources/tasks/task.router');
+const loginRouter = require('./resources/login/login.router');
 const logger = require('./common/logger');
-const { NotFoundError, ValidationError } = require('./common/errors');
+const {
+  NotFoundError,
+  ValidationError,
+  ForbiddenError,
+  UnauthorizedError
+} = require('./common/errors');
+const { authorization } = require('./common/authorization');
 
 const app = express();
 const swaggerDocument = YAML.load(path.join(__dirname, '../doc/api.yaml'));
 
 app.use(express.json());
+
+app.use('/', (req, res, next) => {
+  if (req.originalUrl === '/') {
+    res.send('Service is running!');
+    return;
+  }
+  next();
+});
+
+app.use('/login', loginRouter);
 
 app.use((req, res, next) => {
   logger.info(
@@ -26,13 +43,7 @@ app.use((req, res, next) => {
 
 app.use('/doc', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 
-app.use('/', (req, res, next) => {
-  if (req.originalUrl === '/') {
-    res.send('Service is running!');
-    return;
-  }
-  next();
-});
+app.use(authorization);
 
 boardRouter.use('/:boardId/tasks', taskRouter);
 
@@ -42,10 +53,13 @@ app.use('/boards', boardRouter);
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
   logger.error(err.stack);
-  if (err instanceof NotFoundError) {
+  if (
+    err instanceof NotFoundError ||
+    err instanceof ForbiddenError ||
+    err instanceof ValidationError ||
+    err instanceof UnauthorizedError
+  ) {
     res.status(err.status).send(err.message);
-  } else if (err instanceof ValidationError) {
-    res.status(err.status).send('Bad request');
   } else {
     res.status(500).send('Internal Server Error');
   }
