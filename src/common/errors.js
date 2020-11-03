@@ -16,4 +16,27 @@ class ValidationError extends Error {
   }
 }
 
-module.exports = { ValidationError, NotFoundError };
+class ForbiddenError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'ForbiddenError';
+    this.status = 403;
+    this.message = 'Forbidden';
+  }
+}
+
+class UnauthorizedError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'UnauthorizedError';
+    this.status = 401;
+    this.message = 'Unauthorized';
+  }
+}
+
+module.exports = {
+  ValidationError,
+  NotFoundError,
+  ForbiddenError,
+  UnauthorizedError
+};
